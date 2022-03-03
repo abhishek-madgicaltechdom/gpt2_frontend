@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8">
+    <style>
+        body {
+            text-align: center;
+            background: linear-gradient(0deg, #f9f8fe, #f9f8fe);
+            height: 98vh;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .form_box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #fff;
+            box-shadow: 0 4px 11px -4px rgb(23 43 77 / 16%);
+            padding: 3.5rem 3rem;
+            max-width: 33.75rem;
+            margin: 4.5rem auto;
+        }
+
+        .heading {
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 700;
+            color: #172b4d;
+        }
+
+        .text {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", sans-serif;
+        }
+
+        label {
+            float: left;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 10.75rem;
+            border: 1px solid #dadde2;
+            border-radius: 4px;
+            padding: 0.85rem;
+            font-size: 1rem;
+            color: #241c3c;
+            margin-bottom: 20px;
+        }
+
+        input[type=text]:focus,
+        input[type=password]:focus {
+            background-color: #ddd;
+            outline: none;
+        }
+
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+
+        .registerbtn {
+            background: #6e40ff;
+            border: 1px solid #6e40ff;
+            border-radius: 4px;
+            display: block;
+            width: 45%;
+            color: #fff;
+            height: 2.75rem;
+            font-weight: 700;
+            font-size: .875rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .registerbtn:hover {
+            opacity: 1;
+        }
+
+        a {
+            color: dodgerblue;
+        }
+
+        .signin {
+            background-color: #f1f1f1;
+            text-align: center;
+        }
+
+        .btn_box {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .homebtn {
+            background: #6e40ff;
+            border: 1px solid #6e40ff;
+            border-radius: 4px;
+            display: block;
+            width: 45%;
+            color: #fff;
+            height: 2.75rem;
+            font-weight: 700;
+            font-size: .875rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        #description {
+            display: none;
+        }
+
+        .pro_desc {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: auto;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite;
+            /* Safari */
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <form class="form_box" name="form">
+        <div class="container">
+            <h1 class="heading">GPT2 ML Model</h1>
+            <p class="text">Please enter below about the product.
+                <hr>
+
+                <label for="prompt"><b>Prompt</b></label>
+                <textarea placeholder="Enter In Prompt" name="prompt" id="prompt" required></textarea>
+
+                <label class="pro_desc" for="prompt"><b>Product Description</b></label>
+                <textarea name="description" id="description" required></textarea>
+            <p class="loading loader"></p>
+
+            <div class="btn_box">
+                <button type="submit" class="registerbtn">Predict</button>
+                <button class="homebtn" onclick="gohome()">Home</button>
+            </div>
+            <p class="prediction"></p>
+        </div>
+    </form>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+
+        let prediction = ''
+
+        function gohome() {
+            window.open('/', target = '_self')
+        }
+
+        submit_btn = document.querySelector('.registerbtn')
+
+        submit_btn.addEventListener('click', function (ev) {
+            let predictionCont = document.querySelector('.prediction')
+            ev.preventDefault();
+            console.log('Submit Data');
+            const form = document.querySelector('form');
+            const data = Object.fromEntries(new FormData(form).entries());
+            console.log(data);
+            if (data.curtosis != '' && data.entropy != '' && data.skewness != '' && data.variance != '') {
+                makePostRequest('https://7e5d-35-247-93-210.ngrok.io/product-description', data)
+            }
+            else {
+                predictionCont.innerHTML = 'Please fill all the inputs!'
+                predictionCont.style.color = 'red'
+            }
+        }, false);
+
+
+
+        async function makePostRequest(path, queryObj) {
+            loading = document.querySelector('.loading')
+            loading.style.display = "block"
+            let predictionCont = document.querySelector('.prediction')
+            await axios.post(path, queryObj)
+                .then(
+                    (response) => {
+                        loading.style.display = 'none'
+                        var prediction = response.data;
+                        desc_textarea = document.getElementById('description')
+                        pro_desc_label = document.querySelector('.pro_desc')
+                        // predictionCont.innerHTML = prediction.prediction
+                        // predictionCont.style.color = 'black'
+
+                        desc_textarea.style.display = "block"
+                        pro_desc_label.style.display = "block"
+                        desc_textarea.innerHTML = prediction.productDescription
+                        console.log(prediction);
+
+                        return prediction
+                    },
+                    (error) => {
+                        console.error(error);
+                        predictionCont.innerHTML = error.message
+                        predictionCont.style.color = 'red'
+                    }
+                    )
+                .then((prediction) => {
+                    console.log(prediction);
+                    data = {
+                        prompt: queryObj.prompt,
+                        description: prediction.productDescription
+                    }
+                    axios.post('http://0.0.0.0:3030/product-description', data )
+                    .then((res) => {
+                        console.log(res);
+                    })
+                        .catch((err) => {
+                            console.log(err);
+                        })
+                })
+        }
+    </script>
+
+</body>
+
+</html>
